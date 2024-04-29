@@ -51,13 +51,13 @@ class PrefixAppendedLinear(nn.Module):
 
 
 
-class PrefixModel(DeltaBase):
+class PrefixTuningModel(DeltaBase):
     r""" 
     这是我实现Prefix的方式; 简洁准确
     """
 
     config_class = PrefixConfig
-    delta_type = "prefix"
+    delta_type = "prefix_tuning"
     default_modified_modules = ['attn@.k@', 'attn@.v@'] # prefix方法修改的 common structure
     _need_pseudo_data = False
     def __init__(self,
@@ -93,7 +93,7 @@ class PrefixModel(DeltaBase):
         parallel_module = self.new_module_like(child_module=child_ref)
         self.insert_sequential_module(child_ref, 
                                     delta_module=parallel_module, 
-                                    delta_name=PrefixModel.delta_type)
+                                    delta_name=PrefixTuningModel.delta_type)
 
     def _pseudo_data_to_instantiate(self, module):
         # no need to pass pseudo input, so overwrite it
