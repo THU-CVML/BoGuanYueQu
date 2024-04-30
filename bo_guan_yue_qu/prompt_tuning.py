@@ -106,3 +106,10 @@ class SoftPromptLayer(nn.Module):
 
     def merge_into(self, layer: nn.Module):
         raise ArithmeticError("General Soft Prompt Tuning cannot be re-parameterized.")
+
+
+# class SoftPromptModel(YueQuModel):
+#     config_class = PrefixConfig
+#     delta_type = "prefix_tuning"
+#     default_modified_modules = ['attn@.k@', 'attn@.v@'] # prefix方法修改的 common structure
+#     _need_pseudo_data = False

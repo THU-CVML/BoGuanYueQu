@@ -11,9 +11,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.normal import Normal
 
-from pydantic import BaseModel, ConfigDict, Field
+from bo_guan_yue_qu.concepts import YueQuLayer, YueQuLayerConfig, Field
 
-class ConvLoRAConfig(BaseModel):
+
+class ConvLoRAConfig(YueQuLayerConfig):
     """
     Conv-LoRA incorporated in Linear Layer. Weights of linear layer are set to be frozen per default.
     References
@@ -34,8 +35,7 @@ class ConvLoRAConfig(BaseModel):
     conv_lora_expert_num: Optional[int] = Field(None, description="The number of experts in MoE-Conv.")
         
 
-
-class ConvLoRALinear(nn.Module):
+class ConvLoRALinear(YueQuLayer):
     def __init__(
         self,
         reference_layer: nn.Linear, # 外面的框架自然会freeze它
@@ -121,7 +121,8 @@ class ConvLoRALinear(nn.Module):
                 lora_res = lora_res.reshape(B, L, C)
             result += (lora_res @ self.lora_B.T) * self.scaling
 
-        return result, moe_loss
+        # return result, moe_loss # TODO ? 询问一下zhong
+        return result
 
 
 class MoEGate(nn.Module):
