@@ -1,0 +1,1 @@
+from opendelta import Adapter
