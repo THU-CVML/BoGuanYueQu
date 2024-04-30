@@ -2,6 +2,6 @@
 
 __version__ = "0.1.0"
 
-from bo_guan_yue_qu.prefix_tuning import PrefixModel, PrefixConfig
-VPTModel = PrefixModel
-VPTConfig = PrefixConfig
+from bo_guan_yue_qu.prefix_tuning import PrefixTuningModel, PrefixTuningConfig
+VPTModel = PrefixTuningModel
+VPTConfig = PrefixTuningConfig

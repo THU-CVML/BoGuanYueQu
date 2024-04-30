@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from opendelta.utils.signature import get_arg_names, get_arg_names_inside_func
 from opendelta.utils.name_based_addressing import *
@@ -8,7 +8,7 @@ from opendelta import BaseDeltaConfig
 import math
 from dataclasses import dataclass, field
 
-from opendelta.delta_models.prefix import PrefixConfig
+from opendelta.delta_models.prefix import PrefixConfig as PrefixTuningConfig
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -19,7 +19,7 @@ class PrefixAppendedLinear(nn.Module):
         in_features,
         out_features,
         weight,
-        config:PrefixConfig,
+        config:PrefixTuningConfig,
         device, 
     ):
         super().__init__()
@@ -56,13 +56,13 @@ class PrefixTuningModel(DeltaBase):
     这是我实现Prefix的方式; 简洁准确
     """
 
-    config_class = PrefixConfig
+    config_class = PrefixTuningConfig
     delta_type = "prefix_tuning"
     default_modified_modules = ['attn@.k@', 'attn@.v@'] # prefix方法修改的 common structure
     _need_pseudo_data = False
     def __init__(self,
                  backbone_model: nn.Module,
-                 config:PrefixConfig,
+                 config:PrefixTuningConfig,
                  modified_modules: Optional[List[str]] = None,
                  unfrozen_modules: Optional[List[str]] = None,
                  exclude_modules: Optional[List[str]] = None,
