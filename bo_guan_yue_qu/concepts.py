@@ -1,9 +1,3 @@
-
-# class SoftPromptModel(YueQuModel):
-#     config_class = PrefixConfig
-#     delta_type = "prefix_tuning"
-#     default_modified_modules = ['attn@.k@', 'attn@.v@'] # prefix方法修改的 common structure
-#     _need_pseudo_data = False
 from typing import Optional, List, Union, Type, ClassVar
 from opendelta.utils.signature import get_arg_names, get_arg_names_inside_func
 from opendelta.utils.name_based_addressing import *
@@ -44,18 +38,27 @@ class YueQuLayer(nn.Module):
 
 class OpenDeltaWrapper4YueQuLayer(nn.Module):
     # 参考  opendelta.utils.data_parallel.sequential_caller
-    def __init__(self, yuequ_layer:YueQuLayer):
+    def __init__(self, yuequ_layer:YueQuLayer, reference_layer: nn.Module=None):
         self.yuequ_layer = yuequ_layer
         self.yuequ_layer._forward_pre_hook = auto_tuple_output_for_forward_pre_hook(self.yuequ_layer._forward_pre_hook)
         self.yuequ_layer._forward_hook = auto_tuple_output_for_forward_hook(self.yuequ_layer._forward_hook)
+
+        # OpenDelta 不支持 传入 orginial module，所以不能动态的读取和策略
+        # OpenDelta 认为 修改 ret 和 ret是怎么得到的无关，所以input也只好传None
+        # 我们强行传入，使用cache获得上一次的输入，这样就完整了
+        self.cache = None
+        self.reference_model = reference_layer
         
     def pre_forward(self, *args, **kwargs):
-        # OpenDelta 不支持 传入 orginial module，所以不能动态的读取和策略
-        return self.yuequ_layer._forward_pre_hook(module=None, input=args, **kwargs)
+
+        self.cache = (args, kwargs)
+        return self.yuequ_layer._forward_pre_hook(module=self.reference_layer, input=args, **kwargs)
     
     def post_forward(self, ret):
-        # OpenDelta 认为 修改 ret 和 ret是怎么得到的无关，所以input也只好传None
-        return self.yuequ_layer._forward_hook(module=None, input=None, output=ret)
+        if self.cache:
+            return self.yuequ_layer._forward_hook(module=self.reference_layer, input=self.cache[0], 
+                                                  output=ret, **self.cache[1])
+        return self.yuequ_layer._forward_hook(module=self.reference_layer, input=None, output=ret)
 
 class YueQuModel(DeltaBase):
     def __init__(self,
@@ -94,7 +97,7 @@ class YueQuModel(DeltaBase):
     def update_module(self, module: nn.Module, key: str):
         parent_ref, child_name, child_ref = self.find_module(module, key)
         yuequ_layer = self.new_module_like(child_module=child_ref)
-        delta_layer = OpenDeltaWrapper4YueQuLayer(yuequ_layer) # 符合OpenDelta的caller方式
+        delta_layer = OpenDeltaWrapper4YueQuLayer(yuequ_layer, child_ref) # 符合OpenDelta的caller方式
         self.insert_sequential_module(child_ref, 
                                     delta_module=delta_layer, 
                                     delta_name=self.algorithm_name)
