@@ -14,13 +14,14 @@ thunlp/OpenDelta 是本框架代码的后端之一，提供了重要的基础功
 from transformers import AutoModelForImageClassification
 model = AutoModelForImageClassification.from_pretrained("facebook/dinov2-base")
 # doing some awesome things, like finetuning the loaded pretrained model on an awesome dataset.
-dataset = AutoDataset()
+from datasets import load_dataset
+dataset = load_dataset('cifar100')
 trainer = AutoTrainer()
 trainer.train(model, dataset)
 ```
 现在你想对model进行Finetuning，但是Full Finetuning耗费较多的时空资源。
 于是你想通过参数高效微调方法，比如Prefix-Tuning, 进行`博观约取`。
-```python
+```diff
   # load the model 
   from transformers import AutoModelForImageClassification
   model = AutoModelForImageClassification.from_pretrained("facebook/dinov2-base")
@@ -30,10 +31,12 @@ trainer.train(model, dataset)
 +                     config=PrefixTuningConfig(
 +                         prefix_token_num=25
 +                         ), 
-+                     modified_modules=['key', 'value'])
++                     modified_modules=['key', 'value']) # `model` is changed after making the `delta`
 + delta.freeze_module(exclude=["deltas"])
 + delta.log()
   # doing some awesome things, like finetuning the loaded pretrained model on an awesome dataset.
+  from datasets import load_dataset
+  dataset = load_dataset('cifar100')
   dataset = AutoDataset()
   trainer = AutoTrainer()
   trainer.train(model, dataset)
