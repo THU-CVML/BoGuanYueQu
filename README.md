@@ -20,7 +20,7 @@ trainer = AutoTrainer()
 trainer.train(model, dataset)
 ```
 现在你想对model进行Finetuning，但是Full Finetuning耗费较多的时空资源。
-于是你想通过参数高效微调方法，比如Prefix-Tuning, 进行`博观约取`。
+于是你想通过参数高效微调方法，比如Prefix-Tuning (或者你可能更加熟悉 Visual Prompt Tuning，他们是一样的), 进行`博观约取`。
 ```diff
   # load the model 
   from transformers import AutoModelForImageClassification
@@ -47,3 +47,14 @@ trainer.train(model, dataset)
 from bo_guan_yue_qu.benchmark import parameter_efficiency, trainable_parameter_ratio
 trainable_parameter_ratio(delta), parameter_efficiency(delta)
 ```
+
+## Why use our project?
+- 我们有效地支持任意方式加载的PyTorch视觉模型进行delta模块的plug and play，包括timm、huggingface加载的模型，或者google/vit, facebook/dinov2等仓库直接定义的模型。
+- huggingface/peft
+  - 接口不够优雅
+  - 不支持 adapter
+  - 对视觉模型的支持有限
+- OpenDelta
+  - 对视觉模型的支持有限
+- VPT
+  - 需要手动修改代码，不能pip install 之后加几行代码就直接动态替代已有模型。
