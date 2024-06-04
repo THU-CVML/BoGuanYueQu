@@ -11,7 +11,3 @@ class YueQuHookingContract:
     
     def summary(self):
         pass
-    
-# class YueQuHooksMaker:
-#     def make(self)->YueQuHookingContract:
-#         pass

@@ -27,23 +27,3 @@ class DeltaResidualHookingContract(YueQuHookingContract):
             handle.remove()
             self.handles.remove(handle)
         
-
-        
-    
-# class DeltaResidualHooksMaker(YueQuHooksMaker):
-#     def make(self, function:StatefulFun, 
-#                 pre_hook:StatefulFun, 
-#                 post_hook:StatefulFun,
-#                 delta_name:str = "约取")->DeltaResidualHookingContract:
-#         return DeltaResidualHookingContract(
-#             function, pre_hook, post_hook, delta_name
-#         )
-        
-# def forward_hooks_maker(function:StatefulFun, 
-#                 pre_hook:StatefulFun, 
-#                 post_hook:StatefulFun)->RemovableHandles:
-#     pre_hook_handler = function.register_forward_pre_hook(pre_hook)
-#     post_hook_handler = function.register_forward_hook(post_hook)
-#     return RemovableHandles([pre_hook_handler, post_hook_handler])
-
-    
