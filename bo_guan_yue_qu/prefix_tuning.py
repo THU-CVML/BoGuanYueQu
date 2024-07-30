@@ -32,7 +32,6 @@ class PrefixAppendedLinear(nn.Module):
                                                  device=self.device)
                                    , requires_grad=True)
     # 注意参考 opendelta  的 caller，会把 post_forward 函数搞进去。
-    # 不是你这api写的好烂，sequential caller用的和Parallel caller还用不一样的东西，有意思吗？
     def post_forward(self, key_or_value:torch.Tensor): 
          # 比如说这是 key = x[b, s, h]@W_k[h, h] 生成的
         #  我们可以这样操作，前提是，Attention类里面key和value是分开写的。
